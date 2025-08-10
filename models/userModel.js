@@ -17,6 +17,14 @@ const isUserExist = async (username, gmail) => {
   }))
   return result;
 };
+const isUserExistById = async (userId) => {
+  const db = await dbConnection();
+  const userCollection = db.collection("users");
+  const result = !!(await userCollection.findOne({
+    _id: new ObjectId(userId)
+  }))
+  return result;
+};
 
 const register = async (body) => {
   const db = await dbConnection();
@@ -26,8 +34,20 @@ const register = async (body) => {
   });
 };
 
+const makeAdmin = async (userId) => {
+  const db = await dbConnection();
+  const userCollection = db.collection('users')
+  await userCollection.findOneAndUpdate({_id: new ObjectId(userId)}, {
+    $set: {
+      role: 'Admin'
+    }
+  })
+}
+
 module.exports = {
   register,
   isUserExist,
+  isUserExistById,
   getAll,
+  makeAdmin,
 };

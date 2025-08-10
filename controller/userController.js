@@ -32,4 +32,25 @@ exports.register = async (req, res) => {
   
     await userModel.register(newUser);
     return res.status(201).json({ message: "User registered successfully" });
-  };
+};
+
+exports.login = async(req, res) => {
+  const {username, gmail} = req.body
+  console.log(gmail)
+  const userExist = await userModel.isUserExist(username, gmail)
+  console.log(userExist)
+  if(userExist){
+    return res.status(201).json({ message: "User loged in" });
+  }
+  res.status(401).json({message: "user dont exist"})
+}
+
+exports.makeAdmin = async (req, res) => {
+ const userId = req.params.id
+ const isUserExist = await userModel.isUserExistById(userId)
+ if(isUserExist){
+   await userModel.makeAdmin(userId)
+   return res.status(201).json({message: 'user is admin now'})
+ }
+ return  res.status(401).json({message: 'user dont exist'})
+}
