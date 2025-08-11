@@ -9,6 +9,9 @@ const getAll = async () => {
 };
 
 const isUserExist = async (username, gmail) => {
+  if (!userId || !/^[0-9a-fA-F]{24}$/.test(userId)) {
+    return false;
+  }
   const db = await dbConnection();
   const userCollection = db.collection("users");
   const result = !!(await userCollection.findOne({
@@ -17,7 +20,11 @@ const isUserExist = async (username, gmail) => {
   }))
   return result;
 };
+
 const isUserExistById = async (userId) => {
+  if (!userId || !/^[0-9a-fA-F]{24}$/.test(userId)) {
+    return false;
+  }
   const db = await dbConnection();
   const userCollection = db.collection("users");
   const result = !!(await userCollection.findOne({
@@ -44,10 +51,21 @@ const makeAdmin = async (userId) => {
   })
 }
 
+const updateCrime = async (userId, crime) => {
+  const db = await dbConnection();
+  const userCollection = db.collection('users')
+  await userCollection.findOneAndUpdate({_id: new ObjectId(userId)}, {
+    $set: {
+      crime
+    }
+  })
+}
+
 module.exports = {
   register,
   isUserExist,
   isUserExistById,
   getAll,
   makeAdmin,
+  updateCrime,
 };

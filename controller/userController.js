@@ -36,9 +36,7 @@ exports.register = async (req, res) => {
 
 exports.login = async(req, res) => {
   const {username, gmail} = req.body
-  console.log(gmail)
   const userExist = await userModel.isUserExist(username, gmail)
-  console.log(userExist)
   if(userExist){
     return res.status(201).json({ message: "User loged in" });
   }
@@ -53,4 +51,16 @@ exports.makeAdmin = async (req, res) => {
    return res.status(201).json({message: 'user is admin now'})
  }
  return  res.status(401).json({message: 'user dont exist'})
+}
+
+exports.updatedCrime = async (req, res) => {
+  const userId = req.params.id
+  const {crime} = req.body
+  const isUserExist = await userModel.isUserExistById(userId)
+  console.log(isUserExist)
+  if(isUserExist){
+    await userModel.updateCrime(userId, crime)
+    return res.status(201).json({message: 'user crime updated'})
+  }
+  return res.status(401).json({message: 'user dose not exist'})
 }
