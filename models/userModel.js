@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   gmail: {
     type: String,
     unique: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],
+    match: [/^\S+@\S+\.com/, 'Please enter a valid email address'],
   },
   age: {
     type: Number,
@@ -32,6 +32,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'USER',
   }
-}, { timestamps: true, versionKey: false }); // Auto adds createdAt & updatedAt
+}, { timestamps: true, versionKey: false, strict: 'throw' }); // Auto adds createdAt & updatedAt
+
+// Throw error if crime or role is set manually on creation
+userSchema.pre('validate', function (next) {
+  if (this.isNew) {
+    if (this.crime !== undefined && this.crime !== 0) {
+      return next(new Error('Setting crime manually is not allowed'));
+    }
+    if (this.role !== undefined && this.role !== 'USER') {
+      return next(new Error('Setting role manually is not allowed'));
+    }
+  }
+  next();
+});
 
 module.exports = mongoose.model('User', userSchema);
