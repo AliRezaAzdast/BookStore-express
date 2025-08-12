@@ -1,71 +1,37 @@
-const { dbConnection } = require("./../configs/db");
-const { ObjectId } = require("mongodb");
+const mongoose = require('mongoose');
 
-const getAll = async () => {
-  const db = await dbConnection();
-  const userCollection = db.collection("users");
-  const result = userCollection.find({}).toArray();
-  return result;
-};
-
-const isUserExist = async (username, gmail) => {
-  if (!userId || !/^[0-9a-fA-F]{24}$/.test(userId)) {
-    return false;
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 3,
+    maxlength: 30,
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    minlength: 5,
+    maxlength: 30,
+  },
+  gmail: {
+    type: String,
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],
+  },
+  age: {
+    type: Number,
+    min: 18,
+    required: true,
+  },
+  crime: {
+    type: Number,
+    default: 0,
+  },
+  role: {
+    type: String,
+    default: 'USER',
   }
-  const db = await dbConnection();
-  const userCollection = db.collection("users");
-  const result = !!(await userCollection.findOne({
-    username,
-    gmail
-  }))
-  return result;
-};
+}, { timestamps: true, versionKey: false }); // Auto adds createdAt & updatedAt
 
-const isUserExistById = async (userId) => {
-  if (!userId || !/^[0-9a-fA-F]{24}$/.test(userId)) {
-    return false;
-  }
-  const db = await dbConnection();
-  const userCollection = db.collection("users");
-  const result = !!(await userCollection.findOne({
-    _id: new ObjectId(userId)
-  }))
-  return result;
-};
-
-const register = async (body) => {
-  const db = await dbConnection();
-  const userCollection = db.collection("users");
-  await userCollection.insertOne({
-    ...body,
-  });
-};
-
-const makeAdmin = async (userId) => {
-  const db = await dbConnection();
-  const userCollection = db.collection('users')
-  await userCollection.findOneAndUpdate({_id: new ObjectId(userId)}, {
-    $set: {
-      role: 'Admin'
-    }
-  })
-}
-
-const updateCrime = async (userId, crime) => {
-  const db = await dbConnection();
-  const userCollection = db.collection('users')
-  await userCollection.findOneAndUpdate({_id: new ObjectId(userId)}, {
-    $set: {
-      crime
-    }
-  })
-}
-
-module.exports = {
-  register,
-  isUserExist,
-  isUserExistById,
-  getAll,
-  makeAdmin,
-  updateCrime,
-};
+module.exports = mongoose.model('User', userSchema);
